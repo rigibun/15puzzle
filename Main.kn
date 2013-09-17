@@ -1,0 +1,151 @@
+func Main()
+	var a:[][]int :: #[4][]int
+	do a[0] :: [0, 1, 2, 3]int
+	do a[1] :: [4, 5, 6, 7]int
+	do a[2] :: [8, 9, 10, 11]int
+	do a[3] :: [12, 13, 15, 14]int
+	do @Shuffle(a)
+	do @Run(a)
+	do @Clear()
+end func
+
+func Shuffle(arr: [][]int)
+	var n: int :: 100
+	while loop(n > 0)
+		var a: int :: Rnd@Get(0, 3)
+		var b: int :: Rnd@Get(0, 3)
+		var c: int :: Rnd@Get(0, 3)
+		var d: int :: Rnd@Get(0, 3)
+		if(arr[a][b] = 15)
+			continue loop
+		end if
+		if(arr[c][d] = 15)
+			continue loop
+		end if
+		var temp: int :: arr[a][b]
+		do arr[a][b] :: arr[c][d]
+		do arr[c][d] :: temp
+		do n :: n - 1
+	end while
+end func
+
+func Run(a: [][]int)
+	var tex: Draw@CTex :: Draw@LoadTex("img.kntex")
+	var up: bool :: false
+	var down: bool :: false
+	var left: bool :: false
+	var right: bool :: false
+	var x: int
+	var y: int
+	do Dbg@Log("Test")
+	for i(0, 3)
+		for j(0, 3)
+			if(a[i][j] = 15)
+				do y :: i
+				do x :: j
+			end if
+		end for
+	end for
+	
+	do Dbg@Log("test")
+
+	while loop(true)
+		do Kuin@Act()
+		{矢印キーのフラグの解除}
+		if(Input@Pad(0, Input@EBtn#Left) = 0)
+			do left :: false
+		end if
+		if(Input@Pad(0, Input@EBtn#Right) = 0)
+			do right :: false
+		end if
+		if(Input@Pad(0, Input@EBtn#Up) = 0)
+			do up :: false
+		end if
+		if(Input@Pad(0, Input@EBtn#Down) = 0)
+			do down :: false
+		end if
+
+		{タイルの移動}
+		if(Input@Pad(0, Input@EBtn#Left) > 0)
+			if(!left)
+				do left :: true
+				if(x + 1 < 4)
+					var temp: int :: a[y][x]
+					do a[y][x] :: a[y][x + 1]
+					do a[y][x + 1] :: temp
+					do x :: x + 1
+				end if
+			end if
+		end if
+		if(Input@Pad(0, Input@EBtn#Right) > 0)
+			if(!right)
+				do right :: true
+				if(x - 1 >= 0)
+					var temp: int :: a[y][x]
+					do a[y][x] :: a[y][x - 1]
+					do a[y][x - 1] :: temp
+					do x :: x - 1
+				end if
+			end if
+		end if
+		if(Input@Pad(0, Input@EBtn#Up) > 0)
+			if(!up)
+				do up :: true
+				if(y + 1 < 4)
+					var temp: int :: a[y][x]
+					do a[y][x] :: a[y + 1][x]
+					do a[y + 1][x] :: temp
+					do y :: y + 1
+				end if
+			end if
+		end if
+		if(Input@Pad(0, Input@EBtn#Down) > 0)
+			if(!down)
+				do down :: true
+				if(y - 1 >= 0)
+					var temp: int :: a[y][x]
+					do a[y][x] :: a[y - 1][x]
+					do a[y - 1][x] :: temp
+					do y :: y - 1
+				end if
+			end if
+		end if
+
+		{描画}
+		for i(0, 3)
+			for j(0, 3)
+				if(i = y & j = x)
+					continue j
+				end if
+				var posX: float :: (a[i][j] % 4)$float
+				var posY: float :: (a[i][j] / 4)$float
+				do tex.Draw(posX * 160.0, posY * 120.0, 160.0, 120.0, 160.0 * j$float, 120.0 * i$float, 1.0, 1.0, 1.0, 1.0)
+			end for
+		end for
+
+		{チェック}
+		if(@Check(a))
+			break loop
+		end if
+	end while
+end func
+
+func Check(a: [][]int): bool
+	var flag: bool :: true
+	for i(0, 3)
+		for j(0, 3)
+			if(!(a[i][j] = i * 4 + j))
+				do flag :: false
+			end if
+		end for
+	end for
+	return flag
+end func
+
+func Clear()
+	var tex: Draw@CTex :: Draw@LoadTex("clear.kntex")
+	while (true)
+		do Kuin@Act()
+		do tex.Draw(0.0, 0.0, 640.0, 480.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0)
+	end while
+end func
